@@ -4,6 +4,8 @@ services:
   urlshortener:
     build: .
     container_name: urlshortener_container
+    ports:
+      - "3000:3000"
     environment:
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/urlshortener
     depends_on:

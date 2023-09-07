@@ -6,7 +6,7 @@ COPY . .
 
 RUN cargo build --release
 
-FROM debian:slim
+FROM debian
 
 RUN apt-get update && \
     apt-get install -y libssl-dev ca-certificates && \
