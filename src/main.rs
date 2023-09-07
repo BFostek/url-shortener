@@ -15,9 +15,9 @@ async fn main() {
 
     // build our application with a route
     let app = Router::new()
-        .route("/", post(root))
-        .route("/", get(root))
-        .route("/:code", get(handle_request));
+        .route("/", post(save_url))
+        .route("/", get(home))
+        .route("/:code", get(handle_url));
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
@@ -30,10 +30,13 @@ async fn main() {
 }
 
 // basic handler that responds with a static string
-async fn root() -> &'static str {
+async fn home() -> &'static str {
+    "Hello, World!"
+}
+async fn save_url() -> &'static str {
     "Hello, World!"
 }
 
-async fn handle_request(Path((code,)): Path<(String,)>) -> String {
+async fn handle_url(Path((code,)): Path<(String,)>) -> String {
     format!("You passed in the code: {}", code)
 }
