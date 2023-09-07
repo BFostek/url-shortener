@@ -1,0 +1,38 @@
+# Ignore .env file with sensitive data
+.env
+
+# Ignore target directory, which contains compiled files and dependencies
+target/
+
+# Ignore files created by the Rust toolchain
+**/*.rs.bk
+
+# Ignore .DS_Store on Mac
+.DS_Store
+
+# Ignore files created by JetBrains IDEs (like IntelliJ and CLion)
+.idea/
+
+# Ignore files created by Visual Studio Code
+.vscode/
+
+# Ignore files created by Cargo when packaging your application
+*.crate
+
+# Ignore files created by Cargo when documenting your application
+/target/doc/
+
+# Ignore files created by Cargo when fetching registry index
+/.cargo/
+
+# Ignore node_modules if using wasm
+node_modules/
+
+# Ignore backup files created by editors
+*~
+*.swp
+*.swo
+*.bak
+*.orig
+
+
