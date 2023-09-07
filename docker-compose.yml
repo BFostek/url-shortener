@@ -6,13 +6,19 @@ services:
     container_name: urlshortener_container
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     environment:
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/urlshortener
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}
     depends_on:
       - db
+    networks:
+      - mynetwork
 
   db:
     image: postgres
+    env_file:
+      - .env
     container_name: postgres_container
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
@@ -20,7 +26,13 @@ services:
       - POSTGRES_DB=urlshortener
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    network_mode: "host"
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
+
 volumes:
   postgres_data:
 
