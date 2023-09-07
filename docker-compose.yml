@@ -20,7 +20,7 @@ services:
       - POSTGRES_DB=urlshortener
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
+    network_mode: "host"
 volumes:
   postgres_data:
 

@@ -6,6 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+dotenv = "0.15.0"
+sqlx = { version = "0.7.1", features = ["postgres", "runtime-tokio-rustls"] }
 axum = "0.6.20"
 hyper = "0.14.27"
 tokio = { version = "1.32.0", features = ["full"] }

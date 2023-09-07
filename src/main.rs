@@ -1,42 +1,65 @@
 use axum::{
-    routing::{get, post},
+    extract::{Path, State},
     http::StatusCode,
     response::IntoResponse,
-    Json, Router,
-     extract::Path
+    routing::{get, post},
+    Router,
 };
-use serde::{Deserialize, Serialize};
+use sqlx::postgres::{PgPool, PgPoolOptions};
+use std::env;
 use std::net::SocketAddr;
-
+use std::time::Duration;
 #[tokio::main]
 async fn main() {
-    // initialize tracing
     tracing_subscriber::fmt::init();
-
-    // build our application with a route
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .acquire_timeout(Duration::from_secs(3))
+        .connect(&getdb_url())
+        .await
+        .expect("can't connect to database");
     let app = Router::new()
         .route("/", post(save_url))
-        .route("/", get(home))
-        .route("/:code", get(handle_url));
-
-    // run our app with hyper
-    // `axum::Server` is a re-export of `hyper::Server`
+        .route("/:code", get(handle_url))
+        .with_state(pool)
+        .route("/", get(home));
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
-    tracing::debug!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
         .unwrap();
 }
+fn getdb_url() -> String {
+    dotenv::dotenv().ok();
+    format!(
+        "postgres://{}:{}@{}/{}",
+        env::var("POSTGRES_USER").expect("POSTGRES_USER must be set"),
+        env::var("POSTGRES_PASSWORD").expect("POSTGRES_PASSWORD must be set"),
+        env::var("POSTGRES_HOST").unwrap_or_else(|_| "localhost".to_string()),
+        env::var("POSTGRES_DB").expect("POSTGRES_DB must be set"),
+    )
+}
 
-// basic handler that responds with a static string
 async fn home() -> &'static str {
     "Hello, World!"
 }
-async fn save_url() -> &'static str {
-    "Hello, World!"
+async fn save_url() -> impl IntoResponse {}
+
+async fn handle_url(
+    State(pool): State<PgPool>,
+    Path((code,)): Path<(String,)>,
+) -> Result<String , (StatusCode, String)> {
+    match sqlx::query_scalar("SELECT real_url FROM url.urls WHERE hash_url = $1")
+        .bind(code.to_string())
+        .fetch_one(&pool)
+        .await{
+            Ok(url) => Ok(url),
+            Err(_) => {
+                Err((StatusCode::NOT_FOUND, "URL not found".to_string()))
+
+            },
+        }
 }
 
-async fn handle_url(Path((code,)): Path<(String,)>) -> String {
-    format!("You passed in the code: {}", code)
-}
+
+
